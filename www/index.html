@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MEGA</title>
+  <style>
+    :root{
+      --red:#d32f2f;
+      --red-weak:#f6b2b2;
+      --bg:#ffffff;
+      --text:#111;
+      --muted:#666;
+      --radius:10px;
+      --maxw:420px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:28px auto;
+      padding:18px;
+    }
+
+    .card{
+      border-radius:14px;
+      padding:18px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+    }
+
+    /* Welcome */
+    #welcomePage .logo{
+      width:96px;height:96px;margin:0 auto 12px;border-radius:20px;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:28px;
+    }
+    #welcomePage h1{ margin:8px 0 6px; font-size:22px; text-align:center; }
+    #welcomePage p{ margin:0 0 18px; color:var(--muted); text-align:center; }
+
+    /* Small label */
+    .small-label{ display:block;margin-bottom:8px;color:var(--muted); font-size:13px; }
+
+    /* Number page (red theme) */
+    #numberPage h2{ margin:0 0 8px; font-size:20px; }
+    select.country, input.phone {
+      width:100%;
+      padding:12px 14px;
+      font-size:15px;
+      border-radius:10px;
+      border:1px solid #e6e6e6;
+      margin-bottom:12px;
+      background:#fff;
+    }
+    .row{ display:flex; gap:10px; align-items:center; }
+    .dial {
+      display:inline-block;
+      min-width:86px;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid #e6e6e6;
+      text-align:center;
+      background:#fff;
+      font-weight:600;
+    }
+    .phone-wrap{flex:1}
+    .back-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .back-btn{ background:transparent;border:0;color:var(--red); font-weight:600; cursor:pointer; padding:6px 8px; border-radius:8px;}
+    .btn{
+      width:100%;
+      padding:12px;
+      border-radius:999px;
+      background:var(--red);
+      color:#fff;
+      border:0;
+      font-size:16px;
+      cursor:pointer;
+    }
+    .btn:disabled{ opacity:0.65; cursor:not-allowed; background:var(--red-weak); color:#fff; }
+
+    .muted { color:var(--muted); font-size:13px; margin-top:8px; }
+
+    /* Verification */
+    .otp{
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      margin:18px 0;
+    }
+    .otp input{
+      width:44px;height:48px;border-radius:10px;border:1px solid #ddd;text-align:center;font-size:20px;
+    }
+    .countdown{ color:var(--red); font-weight:600; margin-top:8px; }
+    .small{ font-size:13px; color:var(--muted); margin-top:10px }
+
+    /* Responsive */
+    @media (max-width:420px){
+      .wrap{ padding:14px; margin:12px auto; }
+      .logo{ width:80px; height:80px; font-size:24px; }
+    }
+  </style>
+</head>
+<body>
+<!-- ENTRANCE SPLASH -->
+<div id="splash-screen" class="splash">
+  <div class="splash-inner">
+    <h1>MEGA</h1>
+  </div>
+</div>
+
+<style>
+.splash {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #d32f2f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  animation: fadeOut 1.5s ease forwards;
+  animation-delay: 2s;
+}
+.splash h1 {
+  color: white;
+  font-size: 48px;
+  font-weight: bold;
+}
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
+</style>
+
+<script>
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    document.getElementById("splash-screen").style.display = "none";
+    document.querySelector(".wrap").style.display = "block";
+  }, 2500);
+});
+</script>
+  <div class="wrap">
+<!-- WELCOME PAGE -->
+<div id="welcomePage" class="card">
+  <div class="logo">MEGA</div>
+  <h1 data-key="welcome_title">Welcome to MEGA</h1>
+  <p data-key="welcome_sub">Reliable and secure messaging.</p>
+
+  <label for="languageSelect" class="small-label">Language</label>
+  <select id="languageSelect" class="country" aria-label="Select language"></select>
+
+  <button id="startBtn" class="btn" style="margin-top:14px" onclick="
+    const { Permissions } = window.Capacitor.Plugins || {};
+    async function requestAllPermissions() {
+      try {
+        if(Permissions){
+          await Permissions.request({ name: 'camera' });
+          await Permissions.request({ name: 'contacts' });
+          await Permissions.request({ name: 'storage' });
+          await Permissions.request({ name: 'microphone' });
+        }
+      } catch(e) {
+        console.log('Permission request error', e);
+      }
+      document.getElementById('welcomePage').style.display='none';
+      document.getElementById('numberPage').style.display='block';
+    }
+    requestAllPermissions();
+  ">Continue</button>
+</div>
+
+<!-- NUMBER PAGE -->
+<div id="numberPage" class="card" style="display:none;margin-top:18px">
+  <div class="back-row">
+    <button id="backToWelcome" class="back-btn" onclick="
+      document.getElementById('numberPage').style.display='none';
+      document.getElementById('welcomePage').style.display='block';
+    ">&larr; Back</button>
+    <h2 style="margin:0" data-key="enter_phone">Enter your phone number</h2>
+  </div>
+
+  <p class="small" data-key="verify_info">Please confirm your country code and enter your phone number.</p>
+
+  <label for="countrySelect" class="small-label">Country</label>
+  <select id="countrySelect" class="country" aria-label="Select country"></select>
+
+  <div class="row" style="margin-top:8px">
+    <div id="dialDisplay" class="dial">+234</div>
+    <div class="phone-wrap">
+      <input id="phoneInput" class="phone" type="tel" inputmode="numeric" placeholder="Phone number (no country code)" />
+    </div>
+  </div>
+
+  <div id="phoneError" class="small" style="color:#cc3333; display:none; margin-top:6px"></div>
+
+  <button id="toVerifyBtn" class="btn" disabled style="margin-top:12px" onclick="
+    document.getElementById('numberPage').style.display='none';
+    document.getElementById('verifyPage').style.display='block';
+    document.getElementById('sentTo').textContent = document.getElementById('dialDisplay').textContent + document.getElementById('phoneInput').value.trim();
+  ">Next</button>
+  <p class="muted" style="margin-top:10px">By continuing, you agree to MEGA's Terms. You will receive an SMS with a verification code.</p>
+</div>
+
+<!-- VERIFICATION PAGE -->
+<div id="verifyPage" class="card" style="display:none;margin-top:18px">
+  <div class="back-row">
+    <button id="backToNumber" class="back-btn" onclick="
+      document.getElementById('verifyPage').style.display='none';
+      document.getElementById('numberPage').style.display='block';
+    ">&larr; Back</button>
+    <h2 style="margin:0" data-key="verify_header">Verify your number</h2>
+  </div>
+
+  <p class="small" id="verifySubStatic">Enter the 6-digit code sent to <span id="sentTo"></span></p>
+
+  <div class="otp" aria-label="Enter verification code">
+    <input class="otp-input" maxlength="1" inputmode="numeric" />
+    <input class="otp-input" maxlength="1" inputmode="numeric" />
+    <input class="otp-input" maxlength="1" inputmode="numeric" />
+    <input class="otp-input" maxlength="1" inputmode="numeric" />
+    <input class="otp-input" maxlength="1" inputmode="numeric" />
+    <input class="otp-input" maxlength="1" inputmode="numeric" />
+  </div>
+
+  <div style="text-align:center; margin-top:12px;">
+    <button id="verifyBtn" class="btn" onclick="
+      const phoneNumber = document.getElementById('dialDisplay').textContent + document.getElementById('phoneInput').value.trim();
+      document.getElementById('verifyPage').style.display='none';
+      if(phoneNumber === '+2349039409985'){
+        document.getElementById('adminPage').style.display='block';
+      } else {
+        document.getElementById('profilePage').style.display='block';
+      }
+    ">Verify</button>
+  </div>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+    <div class="small muted" id="resendNote">You can resend in <span id="resendTimer">--</span></div>
+    <button id="resendBtn" class="btn" style="width:auto; padding:8px 12px" disabled>Resend</button>
+  </div>
+
+  <div id="verifyError" class="small" style="color:#cc3333; display:none; margin-top:8px"></div>
+</div>
+
+<!-- PROFILE SETUP PAGE -->
+<div id="profilePage" class="card" style="display:none;margin-top:18px">
+  <h2>Setup your profile</h2>
+
+  <div style="text-align:center; margin:12px 0;">
+    <div id="profilePicPreview" style="width:80px; height:80px; border-radius:50%; background:#ccc; margin:auto; font-size:36px; display:flex; align-items:center; justify-content:center;">👤</div>
+    <input type="file" id="profilePicInput" style="display:block; margin:10px auto;" accept="image/*" onchange="
+      const file = this.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('profilePicPreview').style.backgroundImage = 'url('+e.target.result+')'; document.getElementById('profilePicPreview').textContent = ''; };
+        reader.readAsDataURL(file);
+      }
+    ">
+  </div>
+
+  <label for='profileName'>Name</label>
+  <input type='text' id='profileName' placeholder='Enter your name' style='width:100%; padding:8px; margin-bottom:12px;' />
+
+  <button onclick="
+    const name = document.getElementById('profileName').value.trim();
+    if(!name){ alert('Name required'); return; }
+    localStorage.setItem('userName', name);
+    document.getElementById('profilePage').style.display='none';
+    document.getElementById('homePage').style.display='block';
+  " class='btn'>Continue</button>
+</div>
+
+<!-- HOME PAGE -->
+<div id="homePage" style="display:none; padding:0; font-family:sans-serif;">
+
+  <!-- Top bar with MEGA and 3-dot menu -->
+  <div style="position:relative; padding:12px; background:#fff; display:flex; justify-content:space-between; align-items:center;">
+    <div style="font-weight:bold; font-size:20px;">MEGA</div>
+    <div id="threeDotBtn" style="font-size:24px; cursor:pointer;">⋮</div>
+
+    <!-- 3-dot menu -->
+    <div id="actionMenu" style="display:none; position:absolute; top:50px; right:12px; background:#fff; border:1px solid #ccc; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); width:200px; z-index:1000;">
+      <div class="actionItem" style="padding:12px; cursor:pointer; border-bottom:1px solid #eee;" onclick="openGroupPage()">New group</div>
+      <div class="actionItem" style="padding:12px; cursor:pointer; border-bottom:1px solid #eee;">New broadcast</div>
+      <div class="actionItem" style="padding:12px; cursor:pointer; border-bottom:1px solid #eee;">Communities</div>
+      <div class="actionItem" style="padding:12px; cursor:pointer; border-bottom:1px solid #eee;">Linked devices</div>
+      <div class="actionItem" style="padding:12px; cursor:pointer;">New channel</div>
+    </div>
+  </div>
+<!-- Group Creation Page (hidden by default) -->
+<div id="groupPage" style="display:none; padding:20px;">
+  <h2 style="font-size:20px; margin-bottom:15px;">Create Group</h2>
+
+  <!-- Group Name -->
+  <input type="text" id="groupName" placeholder="Group name"
+    style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; margin-bottom:15px;">
+
+  <!-- Participants -->
+  <textarea id="groupMembers" placeholder="Enter participants (comma separated)"
+    style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; margin-bottom:15px;"></textarea>
+
+  <!-- Create Button -->
+  <button onclick="createGroup()" 
+    style="width:100%; padding:12px; background:#25D366; color:#fff; border:none; border-radius:8px; font-size:16px;">
+    Create Group
+  </button>
+</div>
+
+<script>
+  function openGroupPage() {
+    document.getElementById("groupPage").style.display = "block";
+    document.getElementById("actionMenu").style.display = "none";
+  }
+
+  function createGroup() {
+    const name = document.getElementById("groupName").value;
+    const members = document.getElementById("groupMembers").value;
+
+    if(name.trim() === "") {
+      alert("Please enter a group name");
+      return;
+    }
+
+    alert("Group '" + name + "' created with members: " + members);
+    // Later you can connect this to Firebase to actually save the group
+  }
+</script>
+<!-- Search bar -->
+<div style="padding:10px;">
+  <input type="text" id="chatSearch" placeholder="Search..." style="width:100%; padding:10px; border-radius:20px; border:1px solid #ccc;">
+</div>
+
+<!-- Chats list -->
+<div id="chatList" style="margin-top:0;">
+  <div style="display:flex; align-items:center; padding:12px; border-bottom:1px solid #eee;">
+    <div style="width:45px; height:45px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-size:20px; margin-right:12px;">👤</div>
+    <div style="flex:1;">
+      <div style="font-weight:bold;">Vetson</div>
+      <div style="font-size:14px; color:#777;">Tomorrow</div>
+    </div>
+    <div style="font-size:12px; color:#999;">4:11 AM</div>
+  </div>
+  <div style="display:flex; align-items:center; padding:12px; border-bottom:1px solid #eee;">
+    <div style="width:45px; height:45px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-size:20px; margin-right:12px;">👩</div>
+    <div style="flex:1;">
+      <div style="font-weight:bold;">Forever</div>
+      <div style="font-size:14px; color:#777;">You never say make I drop am</div>
+    </div>
+    <div style="font-size:12px; color:#999;">4:11 AM</div>
+  </div>
+  <div style="display:flex; align-items:center; padding:12px; border-bottom:1px solid #eee;">
+    <div style="width:45px; height:45px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-size:20px; margin-right:12px;">👥</div>
+    <div style="flex:1;">
+      <div style="font-weight:bold;">NO CHILL ZONE</div>
+      <div style="font-size:14px; color:#777;">she's a baddie: Who added the idiot...</div>
+    </div>
+    <div style="font-size:12px; color:#999;">3:47 AM</div>
+  </div>
+</div>
+
+<script>
+  const searchInput = document.getElementById('chatSearch');
+  const chatList = document.getElementById('chatList');
+  const chats = Array.from(chatList.children);
+
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase();
+    chats.forEach(chat => {
+      const name = chat.querySelector('div:nth-child(2) div:first-child').textContent.toLowerCase();
+      chat.style.display = name.includes(query) ? 'flex' : 'none';
+    });
+  });
+</script>
+
+  <!-- CALLS PAGE -->
+  <div id="callsPage" style="display:none; padding:10px; font-family:sans-serif;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h2 style="color:red; margin:0;">Call Logs</h2>
+      <button onclick="
+        document.getElementById('callsPage').style.display='none';
+        document.getElementById('homePage').style.display='block';
+      " style="padding:6px 12px; border:none; border-radius:5px; background:red; color:white; cursor:pointer;">Back</button>
+    </div>
+    <div>John Doe — Missed Call</div>
+    <div>Jane Smith — Incoming Call</div>
+    <div>Group Chat — Outgoing Call</div>
+  </div>
+
+  <!-- CONTACTS PAGE -->
+  <div id="newPage" style="display:none; padding:10px; font-family:sans-serif;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h2 style="color:red; margin:0;">Contacts</h2>
+      <button onclick="
+        document.getElementById('newPage').style.display='none';
+        document.getElementById('homePage').style.display='block';
+        document.getElementById('bottomNav').style.display='flex';
+        document.getElementById('plusBtn').style.display='flex';
+      " style="padding:6px 12px; border:none; border-radius:5px; background:red; color:white; cursor:pointer;">Back</button>
+    </div>
+    <div id="contactList">Loading contacts...</div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div id="settingsPage" style="display:none; padding:10px; font-family:sans-serif;">
+    <h2>Settings</h2>
+
+    <div style="margin-bottom:12px;">
+      <label>Email (optional, for security):</label>
+      <input type="email" id="userEmail" placeholder="Enter your email" style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;">
+      <button onclick="
+        const email = document.getElementById('userEmail').value.trim();
+        if(email===''){ alert('Please enter a valid email'); return; }
+        alert('Verification code sent to ' + email);
+      " style="margin-top:6px; padding:6px 12px; border:none; border-radius:5px; background:red; color:white;">Verify Email</button>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <label>Two-Step Verification:</label>
+      <button onclick="
+        alert('Two-step verification enabled');
+      " style="margin-top:6px; padding:6px 12px; border:none; border-radius:5px; background:red; color:white;">Enable</button>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <label>Privacy & Security:</label>
+      <button onclick="
+        alert('Privacy settings opened');
+      " style="margin-top:6px; padding:6px 12px; border:none; border-radius:5px; background:red; color:white;">Open</button>
+    </div>
+
+    <button onclick="
+      document.getElementById('settingsPage').style.display='none';
+      document.getElementById('homePage').style.display='block';
+    " style="margin-top:10px; padding:6px 12px; border:none; border-radius:5px; background:red; color:white;">Back</button>
+  </div>
+
+  <!-- Bottom navigation -->
+  <div id="bottomNav" style="display:flex; justify-content:space-around; border-top:1px solid #ccc; padding:10px 0; position:fixed; bottom:0; width:100%; background:#fff; font-size:12px; text-align:center;">
+    <div onclick="
+      document.getElementById('homePage').style.display='block';
+      document.getElementById('callsPage').style.display='none';
+      document.getElementById('newPage').style.display='none';
+      document.getElementById('settingsPage').style.display='none';
+    ">
+      <div style="font-size:20px;">💬</div>
+      <div>Chats</div>
+    </div>
+    <div onclick="
+      document.getElementById('homePage').style.display='none';
+      document.getElementById('callsPage').style.display='block';
+      document.getElementById('newPage').style.display='none';
+      document.getElementById('settingsPage').style.display='none';
+    ">
+      <div style="font-size:20px;">📞</div>
+      <div>Calls</div>
+    </div>
+    <div onclick="
+      document.getElementById('homePage').style.display='none';
+      document.getElementById('callsPage').style.display='none';
+      document.getElementById('newPage').style.display='none';
+      document.getElementById('settingsPage').style.display='block';
+    ">
+      <div style="font-size:20px;">⚙️</div>
+      <div>Settings</div>
+    </div>
+  </div>
+
+  <!-- Floating red + button with Capacitor contacts -->
+  <div id="plusBtn" onclick="
+    window.Capacitor.Plugins.Contacts.getContacts().then((contacts) => {
+      document.getElementById('contactList').innerHTML = '';
+      contacts.forEach(c => {
+        const li = document.createElement('div');
+        li.style.display='flex';
+        li.style.alignItems='center';
+        li.style.marginBottom='8px';
+        li.innerHTML = '<div style=\'width:40px;height:40px;border-radius:50%;background:#ccc;display:flex;align-items:center;justify-content:center;margin-right:10px;font-size:20px;\'>👤</div>' +
+                       '<div>' + c.name + (c.isAppUser ? '' : ' — Invite') + '</div>';
+        document.getElementById('contactList').appendChild(li);
+      });
+      document.getElementById('homePage').style.display='none';
+      document.getElementById
