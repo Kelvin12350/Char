@@ -1,5 +1,5 @@
 {
   "appId": "com.yourname.mega",
   "appName": "MEGA",
-  "webDir": "."
+  "webDir": "www"
 }
