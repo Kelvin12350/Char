@@ -1,0 +1,6 @@
+{
+  "appId": "com.yourname.mega",
+  "appName": "MEGA",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
